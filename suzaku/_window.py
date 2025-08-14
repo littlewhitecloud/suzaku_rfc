@@ -91,7 +91,6 @@ class Window(SEventHandler):
             return
 
         try:
-            # TODO: test vulkannnnnnn?
             # make context
             context = skia.GrDirectContext.MakeGL()
             (FB_WIDTH, FB_HEIGHT) = glfw.get_framebuffer_size(window)

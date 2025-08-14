@@ -29,6 +29,7 @@ class SWindow(Window):
         self.create_binds()
 
         self.bind_event(self.id, "mouse_press", self._mouse)
+        self.bind_event(self.id, "mouse_motion", self._mouse)
 
     def _on_mouse_pos(self, window: any) -> None:
         """Set mouse pos"""
@@ -76,9 +77,13 @@ class SWindow(Window):
         """
         keyname: str = glfw.get_key_name(key, scancode)
 
-        if mods:
-            mods = mods_dict[mods]
-
+        try:
+            if mods:
+                mods = mods_dict[mods]
+        except:
+            mods = None
+            print("TODO: fix mods")
+        
         _ = SEvent(key=key, keyname=keyname, mods=mods)
 
         match action:
@@ -203,9 +208,7 @@ class SWindow(Window):
                 widget.x <= event.x <= widget.x + widget.width
                 and widget.y <= event.y <= widget.y + widget.height
             ):
-                event.id = widget.id
                 widget.focus = True
-                # widget.generate_event("mouse_press", event)
                 break
             widget.focus = False
 
