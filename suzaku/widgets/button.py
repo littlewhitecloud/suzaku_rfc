@@ -2,12 +2,14 @@ import typing
 
 import skia
 
-from ..resource import SColor, default_font, dark_theme
+from ..resource import SColor, dark_theme, default_font
 from .textframe import STextFrame, tpos
 
 
-
 class SButton(STextFrame):
+
+    _instances = 0
+
     def __init__(
         self,
         *args,
@@ -18,7 +20,6 @@ class SButton(STextFrame):
     ) -> None:
         super().__init__(*args, widgetname=name, size=size, text=text, **kwargs)
 
-        self._name = widgetname = "SButton"
         self.id = self._name + "." + str(self._instances)
         self._instances += 1
         self.focus = False
@@ -30,18 +31,17 @@ class SButton(STextFrame):
 
         self._on_release()
 
-
     def check_focus(self) -> None:
         return self.focus and not self.clicked
 
     def _on_press(self, *args, **kwargs) -> None:
         """Handle if widget is pressed"""
         if self.check_focus():
-            self.update_theme(self.normal)
+            self.update_theme(self.focused)
             self.clicked = True
 
     def _on_release(self, *args, **kwargs) -> None:
         """Handle if widget is released"""
         if not self.check_focus():
-            self.update_theme(self.unfocused)
+            self.update_theme(self.normal)
             self.clicked = False

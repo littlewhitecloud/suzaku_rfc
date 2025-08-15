@@ -15,13 +15,14 @@ class SWidget(SEventHandler):
     def __init__(
         self,
         widgetname: str,
-        parent: "Window",
+        parent: "SWindow",
         size: tuple[tpos, tpos] = (200, 40),
         x: tpos = 100,
         y: tpos = 100,
         _id: typing.Optional[str] = None,
     ) -> None:
         super().__init__()
+
         self._name = widgetname
         self.parent = parent  # TODO: check parent
 
@@ -39,14 +40,42 @@ class SWidget(SEventHandler):
         self.radius: int = 0
         # end region
 
-        self.parent.add_children(self)
-
-    def _draw_shadow(self, canvas: skia.Surface, rect: skia.Rect) -> None:
-        _shadow_paint = skia.Paint(
+        # draw region
+        self._shadow_paint = skia.Paint(
             AntiAlias=True, Style=skia.Paint.kStrokeAndFill_Style, Color=skia.ColorGRAY
         )
-        _shadow_paint.setImageFilter(skia.ImageFilters.Blur(10, 10))
-        canvas.drawRoundRect(rect, self.radius, self.radius, _shadow_paint)
+        self._shadow_paint.setImageFilter(skia.ImageFilters.Blur(10, 10))
+        # end region
+
+        self.parent.add_children(self)
+
+    def update_theme(self, theme_attr: dict) -> None:
+        """Update theme attr from dict and register them
+
+        :param theme_attr: the dict to register
+        """
+        # check if theme_attr is None for some reason
+        # or just init the widget
+        if not isinstance(theme_attr, dict):
+            theme_attr = self.normal
+        # register
+        for k, v in theme_attr.items():
+            setattr(self, k, v)
+
+    def _on_theme_update(self, *args, **kwargs) -> None:
+        """Handle parent window's theme update"""
+        # first time init or get updated
+        self.normal = self.parent.theme.get_style_attr(f"{self._name}:normal")
+        if self.normal["takefocus"]:
+            self.focused = self.parent.theme.get_style_attr(f"{self._name}:focused")
+        else:
+            self.focused = self.normal  # TODO: improve it
+
+        # register
+        self.update_theme(None)
+
+    def _draw_shadow(self, canvas: skia.Surface, rect: skia.Rect) -> None:
+        canvas.drawRoundRect(rect, self.radius, self.radius, self._shadow_paint)
 
     def _draw(self) -> None: ...
 

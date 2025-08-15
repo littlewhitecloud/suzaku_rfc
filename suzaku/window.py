@@ -1,21 +1,16 @@
+import typing
+
 import glfw
 import OpenGL.GL as gl
 import skia
 
-import typing
 from ._window import Window
-from .resource import STheme
 from .event import SEvent, SEventHandler
+from .resource import STheme
 
-"""
-SWindow -> glfw -> generate_event 
-产生对应事件
-Widget -> generate_event -> register
-注册对应组件的trigger
-generate_event -> triggered -> call back registed function
-"""
+# TODO: implment tab to make widget take focus
 
-mods_dict = {
+mods_dict: dict[int, str] = {
     glfw.MOD_CONTROL: "control",
     glfw.MOD_ALT: "alt",
     glfw.MOD_SHIFT: "shift",
@@ -31,8 +26,6 @@ class SWindow(Window):
 
         self.theme: typing.Optional["STheme"] = None
         self.bg: skia.Color = skia.ColorTRANSPARENT
-
-        self.create_binds()
 
         self.bind_event(self.id, "mouse_press", self._mouse)
         self.bind_event(self.id, "mouse_motion", self._mouse)
@@ -53,9 +46,10 @@ class SWindow(Window):
     def _on_framebuffer_size(self, _: any, width: int, height: int) -> None:
         """Flush canvas"""
         glfw.make_context_current(_)
+        glfw.swap_interval(1)
         with self.create_surface(_) as surface:
             with surface as canvas:
-                # do the draw function of the window
+                # execute the draw function of the window
                 self.draw(canvas)
 
             # update
@@ -94,7 +88,7 @@ class SWindow(Window):
         except:
             mods = None
             print("TODO: fix mods")
-        
+
         _ = SEvent(key=key, keyname=keyname, mods=mods)
 
         match action:
@@ -197,12 +191,15 @@ class SWindow(Window):
         self.generate_event("move", SEvent(event_type="move", x=self.x, y=self.y))
 
     def _on_focus(self, _: any, focused: bool) -> None:
-        if focused:
-            self.focus = True
-            self.generate_event("focus_in", SEvent(event_type="focus_in"))
-        else:
-            self.focus = False
-            self.generate_event("focus_out", SEvent(event_type="focus_out"))
+        """Generate focus event
+
+        :param _: glfw window
+        :param focused: focused or not
+        """
+        self.focus = focused
+        event_type = f"focus_{"in" if focused else "out"}"
+
+        self.generate_event(event_type, SEvent(event_type=event_type))
 
     def _on_char(self, _: any, char: str) -> None:
         """Generate char event
@@ -214,6 +211,10 @@ class SWindow(Window):
         self.generate_event("char", SEvent(event_type="char", char=chr(char)))
 
     def _mouse(self, event: "SEvent") -> None:
+        """Check if mouse is in any widget
+
+        :param event: event, provide x, y pos
+        """
         for widget in self.children:
             if (
                 widget.x <= event.x <= widget.x + widget.width
@@ -223,17 +224,33 @@ class SWindow(Window):
                 break
             widget.focus = False
 
-    def apply_theme(self, theme_name: typing.Optional[str] = None, file_path: typing.Optional[str] = None, internal: bool = True) -> None:
+    def apply_theme(
+        self,
+        theme_name: typing.Optional[str] = None,
+        file_path: typing.Optional[str] = None,
+        internal: bool = True,
+    ) -> None:
+        """Apply theme for SWindow
+
+        :param theme_name:
+            when use with filepath, specifies a loaded theme name
+            when use with internal, provides a internal theme name
+        :param file_path: theme file path
+        :param internal: whether to use internal theme
+        """
         if not internal:
             return STheme(theme_name).read_theme_from_json(file_path).parse_style()
-        
+
         from .resource import dark_theme, light_theme
-        
+
         self.theme = vars()[f"{theme_name}_theme"]
         self.bg = self.theme.get_style_attr("SWindow:bg")
 
+        self.generate_event("theme_update", SEvent(event_type="theme_update"))
+
     def create_binds(self) -> None:
         """Create binds from glfw"""
+
         glfw.make_context_current(self.window)
         glfw.set_window_size_callback(self.window, self._on_resizing)
         glfw.set_framebuffer_size_callback(self.window, self._on_framebuffer_size)

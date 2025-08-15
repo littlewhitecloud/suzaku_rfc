@@ -16,7 +16,3 @@ class SBadge(STextFrame):
         **kwargs
     ) -> None:
         super().__init__(*args, widgetname=name, size=size, text=text, **kwargs)
-
-        self.radius = 16
-        self.bg = SColor([5, 105, 200, 255]).color
-        self.bd = skia.ColorTRANSPARENT

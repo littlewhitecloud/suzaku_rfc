@@ -5,26 +5,40 @@
         "bg": [0, 0, 0, 255]
     },
     
-    "STextframe": {
-        "unfocused": {
+    "SButton": {
+        "normal": {
             "bg": [53, 53, 53, 235],
             "fg": [235, 235, 235, 235],
-            "bd": [63, 63, 63, 235]
-        },
-        "normal": {
-            "bg": [33, 33, 33, 235],
-            "fg": [255, 255, 255, 255],
-            "bd": [43, 43, 43, 235],
+            "bd": [63, 63, 63, 235],
             "radius": 8,
             "shadow": true,
-            "border": true
+            "border": true,
+            "takefocus": true
+        },
+        "focused": {
+            "bg": [33, 33, 33, 235],
+            "fg": [255, 255, 255, 255],
+            "bd": [43, 43, 43, 235]
         }
     },
     "SLabel": {
         "normal": {
             "bg": [0, 0, 0, 0],
+            "fg": [255, 255, 255, 255],
             "shadow": false,
-            "border": false
+            "border": false,
+            "takefocus": false
+        }
+    },
+
+    "SBadge": {
+        "normal": {
+            "bg": [5, 105, 200, 255],
+            "fg": [0, 0, 0, 255],
+            "radius": 99,
+            "border": false,
+            "shadow": true,
+            "takefocus": false
         }
     }
 }

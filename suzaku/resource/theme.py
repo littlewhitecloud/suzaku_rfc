@@ -1,7 +1,9 @@
 import json
-import typing
 import pathlib
+import typing
+
 from .color import SColor
+
 
 class SThemeError(Exception):
     def __init__(self, msg: typing.Any) -> None:
@@ -9,6 +11,7 @@ class SThemeError(Exception):
 
     def __str__(self) -> typing.Any:
         return self.msg
+
 
 class STheme:
 
@@ -20,7 +23,7 @@ class STheme:
 
     def read_theme_from_json(self, file_path: str) -> "STheme":
         """Read theme file from json
-        
+
         :param file_path: the theme file path
         """
 
@@ -48,12 +51,12 @@ class STheme:
             # if get dict then parse it
             if isinstance(_, dict):
                 self.parse_dict(_)
-            else:
-                # tbh, this situation should not be appeared
-                assert False
+
         return self
 
-    def get_style_attr(self, selector: str, prefix: typing.Optional[str] = None) -> dict:
+    def get_style_attr(
+        self, selector: str, prefix: typing.Optional[str] = None
+    ) -> dict:
         """Get style attr
 
         :param selector: select the attr of the widget in the style
@@ -75,22 +78,27 @@ class STheme:
             raise SThemeError(f"Check your selector spelling: '{_}'")
 
         return result
-    
+
     def get_internal_theme(self, name: str) -> typing.Optional["STheme"]:
         try:
             self.name = name
-            return self.read_theme_from_json(STheme.INTERNAL_THEMES_PATH / "dark.json").parse_style()
+            return self.read_theme_from_json(
+                STheme.INTERNAL_THEMES_PATH / "dark.json"
+            ).parse_style()
         except KeyError:
-            raise SThemeError(f"Theme: '{theme_name}' not found, \
-                check your spelling or load it from file")
+            raise SThemeError(
+                f"Theme: '{theme_name}' not found, \
+                check your spelling or load it from file"
+            )
 
-dark_theme = STheme("dark").read_theme_from_json(STheme.INTERNAL_THEMES_PATH / "dark.json").parse_style()
-light_theme = STheme("light").read_theme_from_json(STheme.INTERNAL_THEMES_PATH / "light.json").parse_style()
 
-if __name__ == "__main__":
-    test = STheme("dark")
-
-    test.read_theme_from_json(test.INTERNAL_THEMES_PATH / "dark.json")
-    test.parse_style()
-    #print(test.get_style_attr("SButton:normal:radius"))
-    print(test.INTERNAL_THEMES[test.name])
+dark_theme = (
+    STheme("dark")
+    .read_theme_from_json(STheme.INTERNAL_THEMES_PATH / "dark.json")
+    .parse_style()
+)
+light_theme = (
+    STheme("light")
+    .read_theme_from_json(STheme.INTERNAL_THEMES_PATH / "light.json")
+    .parse_style()
+)

@@ -5,10 +5,11 @@ import glfw
 import OpenGL.GL as gl
 import skia
 
+from .after import SAfter
 from .event import SEventHandler
 
 
-class Window(SEventHandler):
+class Window(SEventHandler, SAfter):
 
     _instances = 0
 
@@ -17,7 +18,8 @@ class Window(SEventHandler):
         Initialize the window
         :param title: the title of the window
         """
-        super().__init__()
+        SEventHandler.__init__(self)
+        SAfter.__init__(self)
 
         # region info
         self.name = name
@@ -32,18 +34,18 @@ class Window(SEventHandler):
         self.title: str = title
         self.height, self.width = 1175, 675
         # identifier
-        self.id = _id if _id else self.name + "." + str(Window._instances)
+        self.id: str = _id if _id else self.name + "." + str(Window._instances)
         # window & mouse pos
         self.x = self.y = 0
         self.mouse_x = self.mouse_y = 0
         self.mouse_rootx = self.mouse_rooty = 0
 
-        self.cursor = "arrow"
-        self.focus = True
+        self.cursor: str = "arrow"
+        self.focus: bool = True
         Window._instances += 1
         # end region
 
-        self.children = []
+        self.children: typing.List["SWidget"] = []
 
         self.create_window()
 
@@ -79,6 +81,10 @@ class Window(SEventHandler):
         :param widget: the widget to be added to the draw list
         """
         self.children.append(widget)
+
+        # Tips: widget init here
+        widget._on_theme_update()
+        widget.bind_event(widget.id, "theme_update", widget._on_theme_update)
 
     @contextlib.contextmanager
     def create_surface(self, window: typing.Optional[typing.Any] = None) -> typing.Any:
@@ -121,30 +127,3 @@ class Window(SEventHandler):
         self.alive = False
 
     destroy = destroy_window
-
-
-# def test():
-#     glfw.init()
-#     a = Window()
-
-#     # from win32material import ApplyMica
-
-#     def draw(canvas):
-#         # 这里定义你的绘图逻辑
-#         canvas.clear(skia.ColorTRANSPARENT)
-#         canvas.drawCircle(100, 100, 40, skia.Paint(Color=skia.ColorGREEN))
-
-#     glfw.make_context_current(a.window)
-#     with a.create_surface() as surface:
-#         with surface as canvas:
-#             draw(canvas)
-
-#             surface.flushAndSubmit()
-#             glfw.swap_buffers(a.window)
-#     # ApplyMica(glfw.get_win32_window(a.window), True, True)
-
-#     while not glfw.window_should_close(a.window):
-#         glfw.wait_events()
-
-
-# test()

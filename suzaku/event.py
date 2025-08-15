@@ -61,7 +61,9 @@ class SEventHandler:
         self.eventlist[eventname][widgetid] = function
         return self
 
-    def unbind_event(self, widgetid: int, eventname: str) -> typing.Optional[typing.Callable]:
+    def unbind_event(
+        self, widgetid: int, eventname: str
+    ) -> typing.Optional[typing.Callable]:
         """Unbind event
 
         :param eventname: the name of the event
