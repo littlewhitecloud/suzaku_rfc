@@ -1,7 +1,10 @@
 import glfw
 import OpenGL.GL as gl
+import skia
 
+import typing
 from ._window import Window
+from .resource import STheme
 from .event import SEvent, SEventHandler
 
 """
@@ -26,10 +29,18 @@ class SWindow(Window):
     def __init__(self, title: str = "Suzaku Application"):
         super().__init__(title=title)
 
+        self.theme: typing.Optional["STheme"] = None
+        self.bg: skia.Color = skia.ColorTRANSPARENT
+
         self.create_binds()
 
         self.bind_event(self.id, "mouse_press", self._mouse)
         self.bind_event(self.id, "mouse_motion", self._mouse)
+
+    def draw(self, surface: typing.Any) -> None:
+        """SWindow default draw function"""
+        surface.clear(self.bg)
+        self._draw(surface)
 
     def _on_mouse_pos(self, window: any) -> None:
         """Set mouse pos"""
@@ -211,6 +222,15 @@ class SWindow(Window):
                 widget.focus = True
                 break
             widget.focus = False
+
+    def apply_theme(self, theme_name: typing.Optional[str] = None, file_path: typing.Optional[str] = None, internal: bool = True) -> None:
+        if not internal:
+            return STheme(theme_name).read_theme_from_json(file_path).parse_style()
+        
+        from .resource import dark_theme, light_theme
+        
+        self.theme = vars()[f"{theme_name}_theme"]
+        self.bg = self.theme.get_style_attr("SWindow:bg")
 
     def create_binds(self) -> None:
         """Create binds from glfw"""

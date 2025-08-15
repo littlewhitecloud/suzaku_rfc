@@ -15,7 +15,7 @@ class STheme:
     INTERNAL_THEMES = {}
     INTERNAL_THEMES_PATH = pathlib.Path(__file__).parent / "theme"
 
-    def __init__(self, name: str):
+    def __init__(self, name: typing.Optional[str] = None):
         self.name = name
 
     def read_theme_from_json(self, file_path: str) -> "STheme":
@@ -61,11 +61,11 @@ class STheme:
 
         :return: dict
         """
+        if prefix:
+            selector = prefix + ":" + selector
         selectors = selector.split(":")
 
         result = self.INTERNAL_THEMES[self.name]
-        if prefix:
-            result = result[prefix]
         try:
             # e.g. ['SButton', 'appearance', 'radius']
             # result = result["SButton"]["appearance"]["radius"]
@@ -75,8 +75,17 @@ class STheme:
             raise SThemeError(f"Check your selector spelling: '{_}'")
 
         return result
+    
+    def get_internal_theme(self, name: str) -> typing.Optional["STheme"]:
+        try:
+            self.name = name
+            return self.read_theme_from_json(STheme.INTERNAL_THEMES_PATH / "dark.json").parse_style()
+        except KeyError:
+            raise SThemeError(f"Theme: '{theme_name}' not found, \
+                check your spelling or load it from file")
 
 dark_theme = STheme("dark").read_theme_from_json(STheme.INTERNAL_THEMES_PATH / "dark.json").parse_style()
+light_theme = STheme("light").read_theme_from_json(STheme.INTERNAL_THEMES_PATH / "light.json").parse_style()
 
 if __name__ == "__main__":
     test = STheme("dark")

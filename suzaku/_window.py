@@ -47,9 +47,8 @@ class Window(SEventHandler):
 
         self.create_window()
 
-    def draw(self, surface: typing.Any) -> None:
+    def _draw(self, surface: typing.Any) -> None:
         """Draw both window and the children widgets"""
-        surface.clear(skia.ColorTRANSPARENT)
         # draw the window's children widgets
         for child in self.children:
             child.draw(surface)

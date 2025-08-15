@@ -5,7 +5,7 @@ import skia
 from ..resource import SColor, default_font, dark_theme
 from .textframe import STextFrame, tpos
 
-from functools import partial
+
 
 class SButton(STextFrame):
     def __init__(
@@ -23,11 +23,7 @@ class SButton(STextFrame):
         self._instances += 1
         self.focus = False
         self.clicked = False
-        # TODO: fix hardcoded dark_theme
-        self.get_style_attr = partial(dark_theme.get_style_attr, prefix="SButton")
-        self.radius = self.get_style_attr("normal:radius")
 
-        # TODO: implement event
         # TODO: implement callable funcitons
         self.bind_event(self.id, "mouse_press", self._on_press)
         self.bind_event(self.id, "mouse_release", self._on_release)
@@ -41,13 +37,11 @@ class SButton(STextFrame):
     def _on_press(self, *args, **kwargs) -> None:
         """Handle if widget is pressed"""
         if self.check_focus():
-            self.bg = self.get_style_attr("normal:bg")
-            self.bd = self.get_style_attr("normal:bd")
+            self.update_theme(self.normal)
             self.clicked = True
 
     def _on_release(self, *args, **kwargs) -> None:
         """Handle if widget is released"""
         if not self.check_focus():
-            self.bg = self.get_style_attr("unfocused:bg")
-            self.bd = self.get_style_attr("unfocused:bd")
+            self.update_theme(self.unfocused)
             self.clicked = False

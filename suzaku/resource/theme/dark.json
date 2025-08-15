@@ -1,15 +1,30 @@
 {
     "name": "dark",
+
+    "SWindow": {
+        "bg": [0, 0, 0, 255]
+    },
     
-    "SButton": {
+    "STextframe": {
         "unfocused": {
             "bg": [53, 53, 53, 235],
+            "fg": [235, 235, 235, 235],
             "bd": [63, 63, 63, 235]
         },
         "normal": {
             "bg": [33, 33, 33, 235],
+            "fg": [255, 255, 255, 255],
             "bd": [43, 43, 43, 235],
-            "radius": 8
+            "radius": 8,
+            "shadow": true,
+            "border": true
+        }
+    },
+    "SLabel": {
+        "normal": {
+            "bg": [0, 0, 0, 0],
+            "shadow": false,
+            "border": false
         }
     }
 }
