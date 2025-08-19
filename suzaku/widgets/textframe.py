@@ -6,9 +6,6 @@ import skia
 from ..resource import SColor, default_font
 from .widget import SWidget, tpos
 
-# [112, 110, 170]
-
-
 class STextFrame(SWidget):
     def __init__(
         self,
@@ -22,7 +19,6 @@ class STextFrame(SWidget):
         self.text: str = text
 
         # draw region
-        self.rect = skia.Rect(self.x, self.y, self.x + self.width, self.y + self.height)
         self._border_paint = skia.Paint(AntiAlias=True, Style=skia.Paint.kStroke_Style)
         self._border_paint.setStrokeWidth(2)
         self._frame_paint = skia.Paint(
@@ -42,14 +38,14 @@ class STextFrame(SWidget):
 
         text_width = default_font.measureText(self.text)
 
-        draw_x = self.x + self.width / 2 - text_width / 2
-        draw_y = (
+        self._text_draw_x = self.x + self.width / 2 - text_width / 2
+        self._text_draw_y = (
             self.y
             + self.height / 2
             - (self._text_metrics.fAscent + self._text_metrics.fDescent) / 2
         )
 
-        canvas.drawSimpleText(self.text, draw_x, draw_y, default_font, self._text_paint)
+        canvas.drawSimpleText(self.text, self._text_draw_x, self._text_draw_y, default_font, self._text_paint)
 
     def _draw_border(self, canvas: skia.Surface, rect: skia.Rect) -> None:
         """Draw border
@@ -78,6 +74,7 @@ class STextFrame(SWidget):
         # colors=[SColor([5, 105, 200, 255]).color ,SColor([112, 110, 170]).color, SColor([128, 155, 209]).color]
         # self.gran = skia.GradientShader.MakeLinear(points, colors)
         # _frame_paint.setShader(self.gran)
+        self.rect = skia.Rect(self.x, self.y, self.x + self.width, self.y + self.height)
         if self.shadow:
             self._draw_shadow(canvas, self.rect)
         canvas.drawRoundRect(self.rect, self.radius, self.radius, self._frame_paint)

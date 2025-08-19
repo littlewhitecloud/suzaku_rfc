@@ -23,25 +23,19 @@ class SButton(STextFrame):
         self.id = self._name + "." + str(self._instances)
         self._instances += 1
         self.focus = False
-        self.clicked = False
 
         # TODO: implement callable funcitons
         self.bind_event(self.id, "mouse_press", self._on_press)
         self.bind_event(self.id, "mouse_release", self._on_release)
 
-        self._on_release()
+        # self._on_release()
 
-    def check_focus(self) -> None:
-        return self.focus and not self.clicked
-
-    def _on_press(self, *args, **kwargs) -> None:
+    def _on_press(self, _) -> None:
         """Handle if widget is pressed"""
-        if self.check_focus():
+        if self.focus:
             self.update_theme(self.focused)
-            self.clicked = True
 
-    def _on_release(self, *args, **kwargs) -> None:
+    def _on_release(self, _) -> None:
         """Handle if widget is released"""
-        if not self.check_focus():
+        if self.focus:
             self.update_theme(self.normal)
-            self.clicked = False

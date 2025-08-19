@@ -30,17 +30,13 @@ class SEventHandler:
         :param eventname: name of the event
         :param _id: id of the widget
         """
-        if isinstance(args[0], SEvent) and args[0].id:
-            print(args[0].id)
-            print(self.eventlist[eventname][args[0].id])
-            # TODO: 重复键值对
-            self.eventlist[eventname][args[0].id](*args, **kwargs)
-            return
         try:
             for event in self.eventlist[eventname].values():
                 event(*args, **kwargs)
         except KeyError:
             self.register_event(eventname)
+        
+
 
     def register_event(self, eventname: str):
         """Register event from SWindow"""
@@ -56,7 +52,7 @@ class SEventHandler:
         """
 
         if eventname not in self.eventlist:
-            self.eventlist[eventname] = {}
+            self.register_event(eventname)
 
         self.eventlist[eventname][widgetid] = function
         return self
@@ -70,62 +66,43 @@ class SEventHandler:
         :return: might be registed callable function or if it failed, return None
         """
 
-        if not (widgetid and eventname):
-            return
-
-        return self.eventlist[eventname].pop(widgetid, None)
-
+        if widgetid or eventname:
+            return self.eventlist[eventname].pop(widgetid, None)
 
 class SEvent:
     def __init__(
         self,
-        event_type: typing.Optional[str] = None,
-        x: typing.Optional[int] = None,
-        y: typing.Optional[int] = None,
-        rootx: typing.Optional[int] = None,
-        rooty: typing.Optional[int] = None,
-        key: typing.Optional[int] = None,
-        keyname: typing.Optional[str] = None,
-        mods: typing.Optional[str] = None,
-        char: typing.Optional[int] = None,
-        width: typing.Optional[int] = None,
-        height: typing.Optional[int] = None,
-        id: typing.Optional[str] = None,
+        # event_type: typing.Optional[str] = None,
+        # x: typing.Optional[int] = None,
+        # y: typing.Optional[int] = None,
+        # rootx: typing.Optional[int] = None,
+        # rooty: typing.Optional[int] = None,
+        # key: typing.Optional[int] = None,
+        # keyname: typing.Optional[str] = None,
+        # mods: typing.Optional[str] = None,
+        # char: typing.Optional[int] = None,
+        # width: typing.Optional[int] = None,
+        # height: typing.Optional[int] = None,
+        # id: typing.Optional[str] = None,
+        **kwargs,
     ):
-        """
-        Used to pass event via arguments.
-
-        Args:
-            x:
-                x position of cursor / component (Relative to window).
-
-            y:
-                y position of cursor / component (Relative to window).
-
-            rootx:
-                x position of cursor / component (Relative to screen).
-
-            rooty:
-                y position of cursor / component (Relative to screen).
-
-            key:
-                Key name.
-
-            mods:
-                Modifier keys.
-        """
-        self.event_type = event_type
-        self.x = x
-        self.y = y
-        self.rootx = rootx
-        self.rooty = rooty
-        self.key = key
-        self.keyname = keyname
-        self.mods = mods
-        self.char = char
-        self.width = width
-        self.height = height
-        self.id = id
+        __slots__ = []
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+            __slots__.append(k)
+        #__slots__ = ["event_type", "x", "y", "rootx", "rooty"]
+        # self.event_type = event_type
+        # self.x = x
+        # self.y = y
+        # self.rootx = rootx
+        # self.rooty = rooty
+        # self.key = key
+        # self.keyname = keyname
+        # self.mods = mods
+        # self.char = char
+        # self.width = width
+        # self.height = height
+        # self.id = id
 
 
 # def _test():

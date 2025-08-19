@@ -29,6 +29,7 @@ class SWindow(Window):
 
         self.bind_event(self.id, "mouse_press", self._mouse)
         self.bind_event(self.id, "mouse_motion", self._mouse)
+        self.bind_event(self.id, "resize", self._on_framebuffer_size)
 
     def draw(self, surface: typing.Any) -> None:
         """SWindow default draw function"""
@@ -43,18 +44,17 @@ class SWindow(Window):
         self.mouse_rootx = pos[0] + self.x
         self.mouse_rooty = pos[1] + self.y
 
-    def _on_framebuffer_size(self, _: any, width: int, height: int) -> None:
+    def _on_framebuffer_size(self, *args, **kwargs) -> None:
         """Flush canvas"""
-        glfw.make_context_current(_)
-        glfw.swap_interval(1)
-        with self.create_surface(_) as surface:
+        glfw.make_context_current(self.window)
+        with self.get_surface() as surface:
             with surface as canvas:
                 # execute the draw function of the window
                 self.draw(canvas)
 
             # update
             surface.flushAndSubmit()
-            glfw.swap_buffers(_)
+            glfw.swap_buffers(self.window)
 
     def _on_resizing(self, window: any, width: int, height: int) -> None:
         """Generate reszie event
@@ -64,7 +64,6 @@ class SWindow(Window):
         :param height: the height of the window
         """
         gl.glViewport(0, 0, width, height)
-        self._on_framebuffer_size(window, width, height)
         self.width = width
         self.height = height
         self.generate_event(
@@ -122,12 +121,12 @@ class SWindow(Window):
         self.generate_event(
             event_type,
             SEvent(
-                event_type,
+                event_type=event_type,
                 x=self.mouse_x,
                 y=self.mouse_y,
                 rootx=self.mouse_rootx,
                 rooty=self.mouse_rooty,
-            ),
+            )
         )
 
     def _on_closed(self, _: any) -> None:
@@ -156,7 +155,7 @@ class SWindow(Window):
                 y=self.mouse_y,
                 rootx=self.mouse_rootx,
                 rooty=self.mouse_rooty,
-            ),
+            )
         )
 
     def _on_cursor_pos(self, _: any, x: int, y: int) -> None:
@@ -176,7 +175,7 @@ class SWindow(Window):
                 y=y,
                 rootx=self.mouse_rootx,
                 rooty=self.mouse_rooty,
-            ),
+            )
         )
 
     def _on_window_pos(self, _: any, x: int, y: int) -> None:
@@ -216,6 +215,8 @@ class SWindow(Window):
         :param event: event, provide x, y pos
         """
         for widget in self.children:
+            if (not widget.takefocus):
+                continue
             if (
                 widget.x <= event.x <= widget.x + widget.width
                 and widget.y <= event.y <= widget.y + widget.height
@@ -248,10 +249,14 @@ class SWindow(Window):
 
         self.generate_event("theme_update", SEvent(event_type="theme_update"))
 
+        del dark_theme, light_theme
+
     def create_binds(self) -> None:
         """Create binds from glfw"""
 
         glfw.make_context_current(self.window)
+        glfw.window_hint(glfw.SAMPLES, 1)
+        glfw.swap_interval(1)
         glfw.set_window_size_callback(self.window, self._on_resizing)
         glfw.set_framebuffer_size_callback(self.window, self._on_framebuffer_size)
         glfw.set_window_close_callback(self.window, self._on_closed)

@@ -1,8 +1,8 @@
 import os
 from typing import Optional
-
 import skia
 
+os.environ["SKIA_FONT_CACHE_LIMIT_MB"] = "2"
 
 class SFont:
     def __init__(self): ...

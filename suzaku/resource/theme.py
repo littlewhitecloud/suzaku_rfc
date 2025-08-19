@@ -34,6 +34,7 @@ class STheme:
         # register theme name as key and theme style as values
         self.INTERNAL_THEMES[raw_theme.pop("name")] = raw_theme
 
+        del raw_theme
         return self
 
     def parse_dict(self, _dict: dict):
@@ -45,6 +46,8 @@ class STheme:
             # convert rgba to skia Color
             if isinstance(value, list):
                 _dict[key] = SColor(value).color
+        
+        del _dict
 
     def parse_style(self) -> "STheme":
         for _ in self.INTERNAL_THEMES[self.name].values():

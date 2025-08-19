@@ -16,3 +16,4 @@ class SBadge(STextFrame):
         **kwargs
     ) -> None:
         super().__init__(*args, widgetname=name, size=size, text=text, **kwargs)
+

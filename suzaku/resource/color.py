@@ -85,3 +85,4 @@ class SColor:
             self.color = skia.ColorSetARGB(a, r, g, b)
         else:
             raise ValueError("The HEX color format should be #RRGGBB or #RRGGBBAA")
+        del hex_color
