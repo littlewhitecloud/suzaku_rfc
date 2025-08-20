@@ -53,6 +53,7 @@ class SLayoutManager:
         )
 
         self.update_layout()
+        self.parent.add_children(self)
         return self
 
 

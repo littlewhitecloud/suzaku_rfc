@@ -13,13 +13,15 @@ class SButton(STextFrame):
         name: str = "SButton",
         size: tuple[tpos, tpos] = (105, 35),
         text: typing.Optional[str] = None,
+        command: typing.Optional[typing.Callable] = None,
         **kwargs
     ) -> None:
         super().__init__(*args, widgetname=name, size=size, text=text, **kwargs)
 
-        self.id = self._name + "." + str(self._instances)
-        self._instances += 1
+        self.id = self._name + "." + str(SButton._instances)
+        SButton._instances += 1
         self.focus = False
+        self.callback = command if command else None
 
         # TODO: implement callable funcitons
         self.bind_event(self.id, "mouse_press", self._on_press)
@@ -31,10 +33,12 @@ class SButton(STextFrame):
         """Handle if widget is pressed"""
         if self.focus:
             self.update_theme(self.focused)
-            self.parent.update()
+            if self.callback:
+                self.callback()
 
     def _on_release(self, _) -> None:
         """Handle if widget is released"""
         if self.focus:
             self.update_theme(self.normal)
-            self.parent.update()
+            if self.callback:
+                self.callback()

@@ -6,7 +6,7 @@ import skia
 
 from ._window import Window
 from .event import SEvent
-from .resource import STheme
+from .resource import STheme, dark_theme, light_theme
 
 # TODO: implment tab to make widget take focus
 
@@ -22,13 +22,18 @@ mods_dict: dict[int, str] = {
 
 class SWindow(Window):
     def __init__(
-        self, app: typing.Any, title: str = "Suzaku Application", theme: str = "dark"
+        self,
+        app: typing.Any,
+        title: str = "Suzaku Application",
+        theme: str = "dark",
+        size: typing.Tuple[int] = (1175, 675),
     ):
-        super().__init__(app=app, title=title)
+        super().__init__(app=app, title=title, size=size)
 
         self.theme: typing.Optional["STheme"] = None
         self.bg: skia.Color = skia.ColorTRANSPARENT
 
+        self.create_window()
         self.apply_theme(theme)
 
         self.bind_event(self.id, "mouse_press", self._mouse)
@@ -36,10 +41,23 @@ class SWindow(Window):
         # self.bind_event(self.id, "resize", self._on_framebuffer_size)
         self.bind_event(self.id, "update", self._on_framebuffer_size)
 
+        app.add_window(self)
+
     def draw(self, surface: typing.Any) -> None:
         """SWindow default draw function"""
         surface.clear(self.bg)
         self._draw(surface)
+
+    def add_children(self, widget: "SWidget") -> None:  # noqa: F821
+        """Add children to the window
+        :param widget: the widget to be added to the draw list
+        """
+        self.children.append(widget)
+
+        # Tips: widget init here
+        widget._on_theme_update()
+        widget.bind_event(widget.id, "theme_update", widget._on_theme_update)
+        self.update()
 
     def _on_mouse_pos(self, window: any) -> None:
         """Set mouse pos"""
@@ -248,16 +266,16 @@ class SWindow(Window):
         :param internal: whether to use internal theme
         """
         if not internal:
-            return STheme(theme_name).read_theme_from_json(file_path).parse_style()
+            self.theme = (
+                STheme(theme_name).read_theme_from_json(file_path).parse_style()
+            )
+            self.generate_event("theme_update", SEvent(event_type="theme_update"))
+            return
 
-        from .resource import dark_theme, light_theme
-
-        self.theme = vars()[f"{theme_name}_theme"]
+        self.theme = globals()[f"{theme_name}_theme"]
         self.bg = self.theme.get_style_attr("SWindow:bg")
 
         self.generate_event("theme_update", SEvent(event_type="theme_update"))
-
-        del dark_theme, light_theme
 
     def create_binds(self) -> None:
         """Create binds from glfw"""

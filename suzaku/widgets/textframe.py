@@ -2,7 +2,7 @@ import typing
 
 import skia
 
-from ..resource import default_font
+from ..resource import SColor, default_font
 from .widget import SWidget, tpos
 
 
@@ -27,6 +27,8 @@ class STextFrame(SWidget):
         self._frame_paint.setStrokeWidth(2)
         self._text_paint = skia.Paint(AntiAlias=True, Style=skia.Paint.kFill_Style)
         self._text_metrics = default_font.getMetrics()
+
+        self.gradient = None
         # end region
 
     def _draw_text(self, canvas: skia.Surface) -> None:
@@ -65,24 +67,32 @@ class STextFrame(SWidget):
 
         canvas.drawRoundRect(rect, self.radius, self.radius, self._border_paint)
 
+    def _get_shadow(self) -> None:
+        """Get shadow"""
+        self.points = [(self.x, self.y), (self.x + self.width, self.y + self.height)]
+        self.colors = [
+            SColor([5, 105, 200, 255]).color,
+            SColor([110, 135, 185]).color,
+            SColor([130, 65, 165]).color,
+        ]
+        self.gradient = skia.GradientShader.MakeLinear(self.points, self.colors)
+
     def _draw(self, canvas: skia.Surface) -> None:
         """Default draw function
 
         :param canvas: skia Surface
         :param rect: the widget rect
         """
-
         self._frame_paint.setColor(self.bg)
-        # points=[
-        #     (self.x, self.y),
-        #     (self.width, self.height)
-        # ]
-        # colors=[SColor([5, 105, 200, 255]).color ,SColor([112, 110, 170]).color, SColor([128, 155, 209]).color]
-        # self.gran = skia.GradientShader.MakeLinear(points, colors)
-        # _frame_paint.setShader(self.gran)
+        if not self.gradient:
+            self._get_shadow()
+        self._shadow_paint.setShader(self.gradient)
+        self._border_paint.setShader(self.gradient)
+
         self.rect = skia.Rect(self.x, self.y, self.x + self.width, self.y + self.height)
         if self.shadow:
             self._draw_shadow(canvas, self.rect)
+
         canvas.drawRoundRect(self.rect, self.radius, self.radius, self._frame_paint)
         self._draw_border(canvas, self.rect)
         self._draw_text(canvas)  # layer

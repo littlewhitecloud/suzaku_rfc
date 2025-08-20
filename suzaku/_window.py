@@ -1,4 +1,5 @@
 import contextlib
+import gc
 import typing
 
 import glfw
@@ -13,28 +14,35 @@ class Window(SEventHandler, SAfter):
     _instances = 0
 
     def __init__(
-        self, app: typing.Any, name: str = "Window", title: str = "hello", _id=None
+        self,
+        app: typing.Any,
+        title: str,
+        size: typing.Tuple[int],
+        _name: str = "Window",
+        _id=None,
     ) -> None:
-        """
-        Initialize the window
+        """Initialize the window
+
         :param title: the title of the window
+        :param size: the size of the window
+        :param:
         """
         SEventHandler.__init__(self)
         SAfter.__init__(self)
 
         # region info
-        self.name = name
         self.window: typing.Any = None
+        self.application = app
+
         self.alive: bool = False
+        self.name = _name
+        self.id: str = _id if _id else self.name + "." + str(Window._instances)
+        Window._instances += 1
         # end region
 
         # region winfo
-
-        # basic winfo
         self.title: str = title
-        self.width, self.height = 1175, 675
-        # identifier
-        self.id: str = _id if _id else self.name + "." + str(Window._instances)
+        (self.width, self.height) = size
         # window & mouse pos
         self.x = self.y = 0
         self.root_x = self.root_y = 0
@@ -43,7 +51,6 @@ class Window(SEventHandler, SAfter):
 
         self.cursor: str = "arrow"
         self.focus: bool = True
-        Window._instances += 1
 
         self._context = "None"
         self._backend_render_target = None
@@ -51,9 +58,6 @@ class Window(SEventHandler, SAfter):
         # end region
 
         self.children: typing.List["SWidget"] = []  # noqa: F821
-        app.windows.append(self)
-
-        self.create_window()
 
     def _draw(self, surface: typing.Any) -> None:
         """Draw both window and the children widgets"""
@@ -73,24 +77,6 @@ class Window(SEventHandler, SAfter):
             raise RuntimeError("Failed to create a glfw window instance")
 
         self.alive = True
-
-    # def set_application(self, app: typing.Any = None) -> None:
-    #     """
-    #     Attache the window to the application
-    #     :param app: the application
-    #     """
-    #     # append the window itself to the application draw list
-    #     self.application.windows.append(self)
-
-    def add_children(self, widget: "SWidget") -> None:  # noqa: F821
-        """Add children to the window
-        :param widget: the widget to be added to the draw list
-        """
-        self.children.append(widget)
-
-        # Tips: widget init here
-        widget._on_theme_update()
-        widget.bind_event(widget.id, "theme_update", widget._on_theme_update)
 
     def get_context(self) -> None:
         # make context
@@ -147,6 +133,10 @@ class Window(SEventHandler, SAfter):
         if glfw.get_current_context() is None:
             glfw.make_context_current(self.window)
 
+        if self.children:
+            for _ in self.children:
+                del _
+
         if self._context:
             self._context.freeGpuResources()
             self._context.releaseResourcesAndAbandonContext()
@@ -155,5 +145,7 @@ class Window(SEventHandler, SAfter):
         if self.window:
             glfw.destroy_window(self.window)
             self.window = None
+
+        gc.collect()
 
     destroy = destroy_window

@@ -30,12 +30,9 @@ class SWidget(SEventHandler, SLayoutManager):
         # data region
         self.x: tpos = x
         self.y: tpos = y
-        self.width: tpos = size[0]
-        self.height: tpos = size[1]
-        self.id = _id if _id else self._name + "." + str(self._instances)
-        self._instances += 1
-
-        self.radius: int = 0
+        (self.width, self.height) = size
+        self.id = _id if _id else self._name + "." + str(SWidget._instances)
+        SWidget._instances += 1
         # end region
 
         # draw region
@@ -43,11 +40,8 @@ class SWidget(SEventHandler, SLayoutManager):
         self._shadow_paint = skia.Paint(
             AntiAlias=True, Style=skia.Paint.kStrokeAndFill_Style, Color=skia.ColorGRAY
         )
-        self._shadow_paint.setImageFilter(skia.ImageFilters.Blur(7.5, 7.5))
+        self._shadow_paint.setImageFilter(skia.ImageFilters.Blur(10, 10))
         # end region
-
-        self.parent.add_children(self)
-
         return self
 
     def update_layout(self):
