@@ -1,8 +1,5 @@
 import typing
 
-import skia
-
-from ..resource import SColor
 from .textframe import STextFrame, tpos
 
 
@@ -16,4 +13,3 @@ class SBadge(STextFrame):
         **kwargs
     ) -> None:
         super().__init__(*args, widgetname=name, size=size, text=text, **kwargs)
-

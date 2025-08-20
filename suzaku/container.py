@@ -18,7 +18,7 @@ class SLayoutManager:
 
     def place(
         self, x: wpos = None, y: wpos = None, anchor: typing.Optional[str] = None
-    ) -> None:
+    ) -> typing.Any:
         self.layoutconfig["layouttype"] = "place"
         match anchor:
             case "NW":
@@ -53,6 +53,7 @@ class SLayoutManager:
         )
 
         self.update_layout()
+        return self
 
 
 class Calculator:

@@ -1,8 +1,5 @@
 import typing
 
-import skia
-
-from ..resource import SColor, dark_theme, default_font
 from .textframe import STextFrame, tpos
 
 
@@ -34,8 +31,10 @@ class SButton(STextFrame):
         """Handle if widget is pressed"""
         if self.focus:
             self.update_theme(self.focused)
+            self.parent.update()
 
     def _on_release(self, _) -> None:
         """Handle if widget is released"""
         if self.focus:
             self.update_theme(self.normal)
+            self.parent.update()

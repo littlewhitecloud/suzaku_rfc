@@ -1,10 +1,10 @@
 import typing
-from functools import partial
 
 import skia
 
-from ..resource import SColor, default_font
+from ..resource import default_font
 from .widget import SWidget, tpos
+
 
 class STextFrame(SWidget):
     def __init__(
@@ -45,7 +45,13 @@ class STextFrame(SWidget):
             - (self._text_metrics.fAscent + self._text_metrics.fDescent) / 2
         )
 
-        canvas.drawSimpleText(self.text, self._text_draw_x, self._text_draw_y, default_font, self._text_paint)
+        canvas.drawSimpleText(
+            self.text,
+            self._text_draw_x,
+            self._text_draw_y,
+            default_font,
+            self._text_paint,
+        )
 
     def _draw_border(self, canvas: skia.Surface, rect: skia.Rect) -> None:
         """Draw border

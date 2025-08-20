@@ -1,4 +1,3 @@
-from ._application import *
-from ._window import *
-from .window import *
-from .widgets import *
+from ._application import Application  # noqa: F401
+from .widgets import *  # noqa: F403
+from .window import SWindow  # noqa: F401

@@ -39,7 +39,7 @@
     "SBadge": {
         "basic": {
             "radius": 99,
-            "border": false,
+            "border": true,
             "shadow": true,
             "takefocus": false
         },

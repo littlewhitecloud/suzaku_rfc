@@ -2,7 +2,6 @@ import typing
 
 import skia
 
-from ..resource import SColor
 from .textframe import STextFrame, tpos
 
 
@@ -19,8 +18,8 @@ class SLabel(STextFrame):
         # TODO: size(0, 0) seems don't draw anything but it would be bad when calculating size
 
         self.layoutconfig["x"] += size[0]
-        #self.layoutconfig["x"] += self._text_draw_x
-        #self.layoutconfig["y"] += self._text_draw_y
+        # self.layoutconfig["x"] += self._text_draw_x
+        # self.layoutconfig["y"] += self._text_draw_y
 
         self.width = 0
         self.height = 0

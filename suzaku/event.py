@@ -35,8 +35,8 @@ class SEventHandler:
                 event(*args, **kwargs)
         except KeyError:
             self.register_event(eventname)
-        
 
+        del args, kwargs
 
     def register_event(self, eventname: str):
         """Register event from SWindow"""
@@ -44,7 +44,7 @@ class SEventHandler:
 
     def bind_event(
         self, widgetid: int, eventname: str, function: typing.Callable
-    ) -> "SEventHandle":
+    ) -> "SEventHandler":
         """Bind event
 
         :param eventname: the name of the event
@@ -66,12 +66,20 @@ class SEventHandler:
         :return: might be registed callable function or if it failed, return None
         """
 
-        if widgetid or eventname:
+        if widgetid and eventname:
             return self.eventlist[eventname].pop(widgetid, None)
+
 
 class SEvent:
     def __init__(
         self,
+        **kwargs,
+    ):
+        __slots__ = []
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+            __slots__.append(k)
+
         # event_type: typing.Optional[str] = None,
         # x: typing.Optional[int] = None,
         # y: typing.Optional[int] = None,
@@ -84,33 +92,3 @@ class SEvent:
         # width: typing.Optional[int] = None,
         # height: typing.Optional[int] = None,
         # id: typing.Optional[str] = None,
-        **kwargs,
-    ):
-        __slots__ = []
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-            __slots__.append(k)
-        #__slots__ = ["event_type", "x", "y", "rootx", "rooty"]
-        # self.event_type = event_type
-        # self.x = x
-        # self.y = y
-        # self.rootx = rootx
-        # self.rooty = rooty
-        # self.key = key
-        # self.keyname = keyname
-        # self.mods = mods
-        # self.char = char
-        # self.width = width
-        # self.height = height
-        # self.id = id
-
-
-# def _test():
-#     print("wow!")
-
-# test = SEventHandler()
-# test.bind_event(1145, "test", _test)
-# print(test.eventlist)
-# test.generate_event("test")
-# test.unbind_event(1145, "test")
-# print(test.eventlist)

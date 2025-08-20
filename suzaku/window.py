@@ -5,7 +5,7 @@ import OpenGL.GL as gl
 import skia
 
 from ._window import Window
-from .event import SEvent, SEventHandler
+from .event import SEvent
 from .resource import STheme
 
 # TODO: implment tab to make widget take focus
@@ -21,15 +21,20 @@ mods_dict: dict[int, str] = {
 
 
 class SWindow(Window):
-    def __init__(self, title: str = "Suzaku Application"):
-        super().__init__(title=title)
+    def __init__(
+        self, app: typing.Any, title: str = "Suzaku Application", theme: str = "dark"
+    ):
+        super().__init__(app=app, title=title)
 
         self.theme: typing.Optional["STheme"] = None
         self.bg: skia.Color = skia.ColorTRANSPARENT
 
+        self.apply_theme(theme)
+
         self.bind_event(self.id, "mouse_press", self._mouse)
         self.bind_event(self.id, "mouse_motion", self._mouse)
-        self.bind_event(self.id, "resize", self._on_framebuffer_size)
+        # self.bind_event(self.id, "resize", self._on_framebuffer_size)
+        self.bind_event(self.id, "update", self._on_framebuffer_size)
 
     def draw(self, surface: typing.Any) -> None:
         """SWindow default draw function"""
@@ -56,6 +61,8 @@ class SWindow(Window):
             surface.flushAndSubmit()
             glfw.swap_buffers(self.window)
 
+    update = _on_framebuffer_size
+
     def _on_resizing(self, window: any, width: int, height: int) -> None:
         """Generate reszie event
 
@@ -66,8 +73,9 @@ class SWindow(Window):
         gl.glViewport(0, 0, width, height)
         self.width = width
         self.height = height
+        # merge update with resize
         self.generate_event(
-            "resize", SEvent(event_type="resize", width=width, height=height)
+            "update", SEvent(event_type="update", width=width, height=height)
         )
 
     def _on_key(self, _: any, key: str, scancode: str, action: str, mods: str) -> None:
@@ -84,7 +92,7 @@ class SWindow(Window):
         try:
             if mods:
                 mods = mods_dict[mods]
-        except:
+        except KeyError:
             mods = None
             print("TODO: fix mods")
 
@@ -126,7 +134,7 @@ class SWindow(Window):
                 y=self.mouse_y,
                 rootx=self.mouse_rootx,
                 rooty=self.mouse_rooty,
-            )
+            ),
         )
 
     def _on_closed(self, _: any) -> None:
@@ -155,7 +163,7 @@ class SWindow(Window):
                 y=self.mouse_y,
                 rootx=self.mouse_rootx,
                 rooty=self.mouse_rooty,
-            )
+            ),
         )
 
     def _on_cursor_pos(self, _: any, x: int, y: int) -> None:
@@ -175,7 +183,7 @@ class SWindow(Window):
                 y=y,
                 rootx=self.mouse_rootx,
                 rooty=self.mouse_rooty,
-            )
+            ),
         )
 
     def _on_window_pos(self, _: any, x: int, y: int) -> None:
@@ -215,7 +223,7 @@ class SWindow(Window):
         :param event: event, provide x, y pos
         """
         for widget in self.children:
-            if (not widget.takefocus):
+            if not widget.takefocus:
                 continue
             if (
                 widget.x <= event.x <= widget.x + widget.width
@@ -256,6 +264,7 @@ class SWindow(Window):
 
         glfw.make_context_current(self.window)
         glfw.window_hint(glfw.SAMPLES, 1)
+        # gl.glEnable(gl.GL_MULTISAMPLE)
         glfw.swap_interval(1)
         glfw.set_window_size_callback(self.window, self._on_resizing)
         glfw.set_framebuffer_size_callback(self.window, self._on_framebuffer_size)

@@ -1,9 +1,7 @@
 import contextlib
 import typing
-import gc
 
 import glfw
-import OpenGL.GL as gl
 import skia
 
 from .after import SAfter
@@ -14,7 +12,9 @@ class Window(SEventHandler, SAfter):
 
     _instances = 0
 
-    def __init__(self, name: str = "Window", title: str = "hello", _id=None) -> None:
+    def __init__(
+        self, app: typing.Any, name: str = "Window", title: str = "hello", _id=None
+    ) -> None:
         """
         Initialize the window
         :param title: the title of the window
@@ -26,7 +26,6 @@ class Window(SEventHandler, SAfter):
         self.name = name
         self.window: typing.Any = None
         self.alive: bool = False
-        self.application: typing.Any = None
         # end region
 
         # region winfo
@@ -51,7 +50,8 @@ class Window(SEventHandler, SAfter):
         self._make_srgb = skia.ColorSpace.MakeSRGB()
         # end region
 
-        self.children: typing.List["SWidget"] = []
+        self.children: typing.List["SWidget"] = []  # noqa: F821
+        app.windows.append(self)
 
         self.create_window()
 
@@ -74,17 +74,15 @@ class Window(SEventHandler, SAfter):
 
         self.alive = True
 
-    def set_application(self, app: typing.Any = None) -> None:
-        """
-        Attache the window to the application
-        :param app: the application
-        """
-        # this window is attached to the given application
-        self.application = app
-        # append the window itself to the application draw list
-        self.application.windows.append(self)
+    # def set_application(self, app: typing.Any = None) -> None:
+    #     """
+    #     Attache the window to the application
+    #     :param app: the application
+    #     """
+    #     # append the window itself to the application draw list
+    #     self.application.windows.append(self)
 
-    def add_children(self, widget: "SWidget") -> None:
+    def add_children(self, widget: "SWidget") -> None:  # noqa: F821
         """Add children to the window
         :param widget: the widget to be added to the draw list
         """
@@ -110,11 +108,16 @@ class Window(SEventHandler, SAfter):
         try:
             # make backend
             (FB_WIDTH, FB_HEIGHT) = glfw.get_framebuffer_size(self.window)
-            if (not (self._backend_render_target and self.width == FB_WIDTH and self.height == FB_HEIGHT)):
+            if not (
+                self._backend_render_target
+                and self.width == FB_WIDTH
+                and self.height == FB_HEIGHT
+            ):
                 self.width = FB_WIDTH
                 self.height = FB_HEIGHT
+                # GL_RGBA8 = 0x8058
                 self._backend_render_target = skia.GrBackendRenderTarget(
-                    FB_WIDTH, FB_HEIGHT, 0, 0, skia.GrGLFramebufferInfo(0, gl.GL_RGBA8)
+                    FB_WIDTH, FB_HEIGHT, 0, 0, skia.GrGLFramebufferInfo(0, 0x8058)
                 )
             # make surface
             surface = skia.Surface.MakeFromBackendRenderTarget(
@@ -124,16 +127,17 @@ class Window(SEventHandler, SAfter):
                 skia.kRGBA_8888_ColorType,
                 self._make_srgb,
             )
+            del FB_HEIGHT, FB_WIDTH
             # assert surface
             if surface is None:
                 raise RuntimeError("Failed to create a skia surface")
             yield surface
+            # del surface
         finally:
-            if "_context" in locals():
-                _context.freeGpuResources()
-                _context.releaseResourcesAndAbandonContext()
-
-            del FB_HEIGHT, FB_WIDTH
+            pass
+            # self._context.freeGpuResources()  # noqa: F821
+            # self._context.releaseResourcesAndAbandonContext()  # noqa: F821
+            # print()
 
     def destroy_window(self) -> None:
         """Destory the window"""

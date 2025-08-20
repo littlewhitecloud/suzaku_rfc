@@ -1,48 +1,39 @@
-
 # import glfw
 # from win32material import ApplyDarkMode
 
 from ._application import Application
-from .widgets import SBadge#, SButton, SLabel, SImage
+from .widgets import SBadge, SButton, SImage, SLabel, SText  # noqa: F401
 from .window import SWindow
 
 app = Application()
-window = SWindow()
-window.set_application(app)
-window.apply_theme("dark")
+window = SWindow(app=app, title="test", theme="dark")
 
 # if window.theme.name == "dark":
-#     ApplyDarkMode(glfw.get_win32_window(window.window))
-# import tracemalloc
-
-# tracemalloc.start()
+#    ApplyDarkMode(glfw.get_win32_window(window.window))
 
 
 def setsize(event):
+    global image
     image.width = event.width
     image.height = event.height
 
 
-#image = SImage(parent=window, image="background.png", size=(1175, 675))
-#button = SButton(parent=window, text="Hello, refactored suzaku!", size=(175, 35))
-badge = SBadge(parent=window, text="Suzaku Badge", size=(120, 35))
-#label = SLabel(parent=window, text="Suzaku Label")
-
-#button.place(100, 100)
-badge.place(100, 200)
-#image.place(0, 0)
-#label.place(100, 300)
+button = SButton(parent=window, text="Hello, refactored suzaku!", size=(175, 35)).place(
+    100, 100
+)
+# image = SImage(parent=window, image="background.png", size=(1175, 675)).place(0, 0)
+# badge = SBadge(parent=window, text="Suzaku Badge", size=(120, 35)).place(100, 200)
+# text = SText(parent=window, size=(300, 200)).place(100, 300)
+# label = SLabel(parent=window, text="Suzaku Label").place(100, 300)
 
 
 # print(threading.active_count())
-# window.after(1000, window.apply_theme, "light")
+window.after(1000, window.apply_theme, "light")
 
-# print(threading.active_count())
 # window.after(2000, lambda: print("after callback 1"))
-# print(threading.active_count())
 # window.after(3000, lambda: print("after callback 2"))
 
-#image.bind_event(image.id, "resize", setsize)
+# image.bind_event(image.id, "resize", setsize)
 
 app.mainloop()
 

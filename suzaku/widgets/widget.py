@@ -2,7 +2,6 @@ import typing
 
 import skia
 
-from .. import Window
 from ..container import SLayoutManager
 from ..event import SEventHandler
 
@@ -16,7 +15,7 @@ class SWidget(SEventHandler, SLayoutManager):
     def __init__(
         self,
         widgetname: str,
-        parent: "SWindow",
+        parent: "SWindow",  # noqa: F821
         size: tuple[tpos, tpos] = (200, 40),
         x: tpos = 100,
         y: tpos = 100,
@@ -44,7 +43,7 @@ class SWidget(SEventHandler, SLayoutManager):
         self._shadow_paint = skia.Paint(
             AntiAlias=True, Style=skia.Paint.kStrokeAndFill_Style, Color=skia.ColorGRAY
         )
-        self._shadow_paint.setImageFilter(skia.ImageFilters.Blur(10, 10))
+        self._shadow_paint.setImageFilter(skia.ImageFilters.Blur(7.5, 7.5))
         # end region
 
         self.parent.add_children(self)
@@ -73,11 +72,11 @@ class SWidget(SEventHandler, SLayoutManager):
         # first time init or get updated
         self.basic = self.parent.theme.get_style_attr(f"{self._name}:basic")
         self.normal = self.parent.theme.get_style_attr(f"{self._name}:normal")
-        # TODO: avoid use []
-        if self.basic["takefocus"]:
-            self.focused = self.parent.theme.get_style_attr(f"{self._name}:focused")
-        else:
-            self.focused = self.normal  # TODO: improve it
+        self.focused = (
+            self.parent.theme.get_style_attr(f"{self._name}:focused")
+            if self.basic["takefocus"]
+            else self.normal
+        )
 
         # register
         for _ in [self.basic, self.normal]:
@@ -86,7 +85,7 @@ class SWidget(SEventHandler, SLayoutManager):
     def _draw_shadow(self, canvas: skia.Surface, rect: skia.Rect) -> None:
         canvas.drawRoundRect(rect, self.radius, self.radius, self._shadow_paint)
 
-    def _draw(self) -> None: ...
+    def _draw(self, canvas: skia.Surface, rect: skia.Rect) -> None: ...
 
     def draw(self, canvas: skia.Surface) -> None:
         """Execute the widget rendering and subwidget rendering
@@ -94,7 +93,9 @@ class SWidget(SEventHandler, SLayoutManager):
         :param canvas:
         """
         if not self.rect:
-            self.rect = skia.Rect(self.x, self.y, self.x + self.width, self.y + self.height)
+            self.rect = skia.Rect(
+                self.x, self.y, self.x + self.width, self.y + self.height
+            )
 
         self._draw(canvas, self.rect)
         # if the widget is like frame or something else and have children

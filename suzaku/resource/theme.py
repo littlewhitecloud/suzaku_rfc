@@ -46,7 +46,7 @@ class STheme:
             # convert rgba to skia Color
             if isinstance(value, list):
                 _dict[key] = SColor(value).color
-        
+
         del _dict
 
     def parse_style(self) -> "STheme":
@@ -90,7 +90,7 @@ class STheme:
             ).parse_style()
         except KeyError:
             raise SThemeError(
-                f"Theme: '{theme_name}' not found, \
+                f"Theme: '{name}' not found, \
                 check your spelling or load it from file"
             )
 

@@ -46,5 +46,18 @@
             "bg": [5, 105, 200, 255],
             "fg": [255, 255, 255, 235]
         }
+    },
+
+    "SText": {
+        "basic": {
+            "radius": 3,
+            "border": false,
+            "shadow": true,
+            "takefocus": true
+        },
+        "normal": {
+            "bg": [5, 105, 200, 255],
+            "fg": [255, 255, 255, 235]
+        }
     }
 }

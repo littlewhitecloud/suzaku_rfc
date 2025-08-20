@@ -45,7 +45,7 @@ class SColor:
 
         try:
             self.color = getattr(skia, f"Color{name.upper()}")
-        except:
+        except KeyError:
             raise ValueError(f"Color name not exists: {name}")
 
     def set_color_rgba(self, r: int, g: int, b: int, a: int = 255) -> None:
@@ -61,7 +61,7 @@ class SColor:
         """
         try:
             self.color = skia.Color(r, g, b, a)
-        except:
+        except ValueError:
             raise ValueError(f"RGB/RGBA for wrong: R:{r}, G:{g}, B:{b}, A:{a}")
 
     def set_color_hex(self, hex: str) -> None:
