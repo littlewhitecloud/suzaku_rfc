@@ -3,6 +3,8 @@
 original repo link: `https://github.com/XiangQinxi/suzaku`
 
 ### Gallery
+<img width="202" height="332" alt="image" src="https://github.com/user-attachments/assets/871b0792-686d-41e4-af68-177a752a7667" />
+<img width="202" height="332" alt="image" src="https://github.com/user-attachments/assets/e3453657-9159-452e-b800-348fa4e50f35" />
 
 
 ### Develop
@@ -32,4 +34,5 @@ window = SWindow(app=app, title="Minimal suzaku example")
 
 app.mainloop()
 ```
+
 
